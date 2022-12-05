@@ -4,6 +4,11 @@ import mall.domain.PaymentApproved;
 import mall.domain.PaymentCanceled;
 import mall.PayApplication;
 import javax.persistence.*;
+
+import org.springframework.beans.BeanUtils;
+import org.springframework.transaction.support.TransactionSynchronizationAdapter;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
+
 import java.util.List;
 import lombok.Data;
 import java.util.Date;
@@ -49,15 +54,31 @@ public class Payment  {
     }
     @PrePersist
     public void onPrePersist(){
+        if(action.equals("canceled")){
+            PaymentCanceled paymentCanceled = new PaymentCanceled();
+            BeanUtils.copyProperties(this, paymentCanceled);
+            paymentCanceled.publish();
+        }else if(action.equals("progress")){
+            PaymentApproved paymentApproved = new PaymentApproved();
+            BeanUtils.copyProperties(this, paymentApproved);
 
+            // 주문 정보가 커밋된 후에 이벤트 발생시켜야 한다.
+            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter() {
+                @Override
+                public void beforeCommit(boolean readOnly) {
+                    paymentApproved.publish();
+                }
+            });
 
-        PaymentApproved paymentApproved = new PaymentApproved(this);
-        paymentApproved.publishAfterCommit();
+            try {
+                Thread.currentThread().sleep((long) (400 + Math.random() * 220));
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
 
-
-
-        PaymentCanceled paymentCanceled = new PaymentCanceled(this);
-        paymentCanceled.publishAfterCommit();
+        }else{
+            System.out.println("알 수 없는 action");
+        }
 
     }
 

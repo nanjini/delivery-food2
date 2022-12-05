@@ -53,30 +53,14 @@ public class Order  {
 
     @PostPersist
     public void onPostPersist(){
-
-        //Following code causes dependency to external APIs
-        // it is NOT A GOOD PRACTICE. instead, Event-Policy mapping is recommended.
-
-
         mall.external.Payment payment = new mall.external.Payment();
-        // mappings goes here
+        
+        payment.setOrderId(id);
+        payment.setAction("progress");
+        payment.setAmount(qty*price);
+
         AppApplication.applicationContext.getBean(mall.external.PaymentService.class)
             .pay(payment);
-
-
-        OrderPlaced orderPlaced = new OrderPlaced(this);
-        orderPlaced.publishAfterCommit();
-
-
-
-        OrderCanceled orderCanceled = new OrderCanceled(this);
-        orderCanceled.publishAfterCommit();
-
-
-
-        OrderComplete orderComplete = new OrderComplete(this);
-        orderComplete.publishAfterCommit();
-
     }
 
     public static OrderRepository repository(){
