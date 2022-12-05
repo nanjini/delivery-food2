@@ -1,7 +1,21 @@
 ## Model
 www.msaez.io/#/storming/59edce7a55e6a93c7555fb595c2cac91
 
+
+# 체크포인트
+
+## Request / Response
+
+### Pub / Sub로 진행할 경우
+
+
+
+### Reqeust / Response로 할 경우
 ![image](https://user-images.githubusercontent.com/53729857/205655511-90de2d7d-0a39-454f-bd36-bcc4509a03e2.png)
+Pay쪽 서버가 올라오지 않을경우 위와 같이 나옴.
+
+
+
 
 
 
