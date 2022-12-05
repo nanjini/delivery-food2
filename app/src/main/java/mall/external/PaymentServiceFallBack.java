@@ -1,5 +1,7 @@
 package mall.external;
 
+import org.springframework.web.bind.annotation.RequestBody;
+
 public class PaymentServiceFallBack implements PaymentService {
 
     @Override

@@ -71,6 +71,11 @@
 			<scope>test</scope>
 		</dependency>
 
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-netflix-hystrix</artifactId>
+		</dependency>
+
 		<!-- cucumber test -->
 		<dependency>
 			<groupId>io.cucumber</groupId>
