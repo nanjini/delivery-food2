@@ -192,6 +192,49 @@ gitpod /workspace/mall (main) $
 ## 2. CQRS 
 읽기 모델을 분리한다.
 
+- 
+```
+package mall.infra;
+
+import mall.domain.*;
+import mall.config.kafka.KafkaProcessor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cloud.stream.annotation.StreamListener;
+import org.springframework.messaging.handler.annotation.Payload;
+import org.springframework.stereotype.Service;
+
+@Service
+public class OrderStateViewHandler {
+
+    @Autowired
+    private OrderStateRepository orderStateRepository;
+
+    // 생성될 경우 해당 Real Model에 값 저장
+    @StreamListener(KafkaProcessor.INPUT)
+    public void whenOrderPlaced_then_CREATE_1 (@Payload OrderPlaced orderPlaced) {
+        try {
+
+            if (!orderPlaced.validate()) return;
+
+            // view 객체 생성
+            OrderState orderState = new OrderState();
+            // view 객체에 이벤트의 Value 를 set 함
+            orderState.setId(orderPlaced.getId());
+            orderState.setItem(orderPlaced.getItem());
+            orderState.setState("생성");
+            // view 레파지 토리에 save
+            orderStateRepository.save(orderState);
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+```
+
+```
 
 
 ## 4. Request / Response
