@@ -147,6 +147,8 @@ public class PaymentServiceFallBack implements PaymentService {
     }
 }
 ```
+- 실행 시 아래의 에러 로그를 app쪽 로그에서 확인가능
+![image](https://user-images.githubusercontent.com/53729857/205817063-abf4008f-a96b-4f6f-8c28-b493878baf36.png)
 
 
 
