@@ -61,6 +61,9 @@ public class Order  {
 
         AppApplication.applicationContext.getBean(mall.external.PaymentService.class)
             .pay(payment);
+
+        OrderPlaced orderPlaced = new OrderPlaced(this);
+        orderPlaced.publishAfterCommit();
     }
 
     public static OrderRepository repository(){

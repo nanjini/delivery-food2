@@ -22,6 +22,8 @@
         data: () => ({
             headers: [
                 { text: "id", value: "id" },
+                { text: "item", value: "item" },
+                { text: "state", value: "state" },
             ],
             orderState : [],
         }),
@@ -36,4 +38,3 @@
         }
     }
 </script>
-

@@ -6,6 +6,12 @@
         </v-card-title>
 
         <v-card-text>
+            <div>
+                <String label="Item" v-model="item.item" :editMode="editMode" @change="change" />
+            </div>
+            <div>
+                <String label="State" v-model="item.state" :editMode="editMode" @change="change" />
+            </div>
         </v-card-text>
     </v-card>
 
@@ -33,4 +39,3 @@
     }
   }
 </script>
-

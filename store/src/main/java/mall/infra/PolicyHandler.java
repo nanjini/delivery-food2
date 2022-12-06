@@ -28,15 +28,16 @@ public class PolicyHandler{
         PaymentApproved event = paymentApproved;
         System.out.println("\n\n##### listener Receipt : " + paymentApproved + "\n\n");
 
+        OrderManagement orderManagement = new OrderManagement();
+        orderManagement.setOrderId(paymentApproved.getOrderId());
+        orderManagement.setAddress("test주소");
+        orderManagement.setFoodType("한식");
 
-        
+        orderManagementRepository.save(orderManagement);
 
         // Sample Logic //
         OrderManagement.receipt(event);
         
-
-        
-
     }
 
     @StreamListener(value=KafkaProcessor.INPUT, condition="headers['type']=='PaymentCanceled'")

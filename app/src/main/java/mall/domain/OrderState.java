@@ -15,5 +15,6 @@ public class OrderState {
         //@GeneratedValue(strategy=GenerationType.AUTO)
         private Long id;
 
-
+        private String item;
+        private String state;
 }
