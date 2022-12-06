@@ -49,13 +49,13 @@ server:
 
 feign:
   hystrix:
-    enabled: false
+    enabled: true
 
 hystrix:
   command:
     # 전역설정
     default:
-      execution.isolation.thread.timeoutInMilliseconds: 1000
+      execution.isolation.thread.timeoutInMilliseconds: 610
 
 ---
 
