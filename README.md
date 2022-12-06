@@ -59,6 +59,131 @@
   
 
 # 체크포인트
+## 1. Saga(Pub/Sub)
+```
+gitpod /workspace/mall (main) $ http :8081/orders item="치킨" qty=10 price=200 state="주문접수-결재완료"
+HTTP/1.1 201 
+Connection: keep-alive
+Content-Type: application/json
+Date: Tue, 06 Dec 2022 06:19:20 GMT
+Keep-Alive: timeout=60
+Location: http://localhost:8081/orders/1
+Transfer-Encoding: chunked
+Vary: Origin
+Vary: Access-Control-Request-Method
+Vary: Access-Control-Request-Headers
+
+{
+    "_links": {
+        "order": {
+            "href": "http://localhost:8081/orders/1"
+        },
+        "self": {
+            "href": "http://localhost:8081/orders/1"
+        }
+    },
+    "item": "치킨",
+    "price": 200,
+    "qty": 10,
+    "state": "주문접수-결재완료"
+}
+
+
+gitpod /workspace/mall (main) $ http :8084/payments
+HTTP/1.1 200 
+Connection: keep-alive
+Content-Type: application/hal+json
+Date: Tue, 06 Dec 2022 06:19:36 GMT
+Keep-Alive: timeout=60
+Transfer-Encoding: chunked
+Vary: Origin
+Vary: Access-Control-Request-Method
+Vary: Access-Control-Request-Headers
+
+{
+    "_embedded": {
+        "payments": [
+            {
+                "_links": {
+                    "payment": {
+                        "href": "http://localhost:8084/payments/1"
+                    },
+                    "self": {
+                        "href": "http://localhost:8084/payments/1"
+                    }
+                },
+                "action": "progress",
+                "amount": 2000,
+                "orderId": 1
+            }
+        ]
+    },
+    "_links": {
+        "profile": {
+            "href": "http://localhost:8084/profile/payments"
+        },
+        "self": {
+            "href": "http://localhost:8084/payments"
+        }
+    },
+    "page": {
+        "number": 0,
+        "size": 20,
+        "totalElements": 1,
+        "totalPages": 1
+    }
+}
+
+
+gitpod /workspace/mall (main) $ http :8082/orderManagements
+HTTP/1.1 200 
+Connection: keep-alive
+Content-Type: application/hal+json
+Date: Tue, 06 Dec 2022 06:19:51 GMT
+Keep-Alive: timeout=60
+Transfer-Encoding: chunked
+Vary: Origin
+Vary: Access-Control-Request-Method
+Vary: Access-Control-Request-Headers
+
+{
+    "_embedded": {
+        "orderManagements": [
+            {
+                "_links": {
+                    "orderManagement": {
+                        "href": "http://localhost:8082/orderManagements/1"
+                    },
+                    "self": {
+                        "href": "http://localhost:8082/orderManagements/1"
+                    }
+                },
+                "address": "test주소",
+                "foodType": "한식",
+                "orderId": 1,
+                "state": null
+            }
+        ]
+    },
+    "_links": {
+        "profile": {
+            "href": "http://localhost:8082/profile/orderManagements"
+        },
+        "self": {
+            "href": "http://localhost:8082/orderManagements"
+        }
+    },
+    "page": {
+        "number": 0,
+        "size": 20,
+        "totalElements": 1,
+        "totalPages": 1
+    }
+}
+
+
+gitpod /workspace/mall (main) $ 
+```
 
 ## 4. Request / Response
 
@@ -166,7 +291,20 @@ public class PaymentServiceFallBack implements PaymentService {
 ![image](https://user-images.githubusercontent.com/53729857/205829830-ea1edeac-a025-41fe-9d50-92d15ed502d7.png)
 
 ## 6. Gateway / Ingress
-
+gateway의 라우터 설정으로 :8081/orders 요청과 :8088/orders 요청이 같은 서비스를 제공한다.
+```
+spring:
+  profiles: default
+  cloud:
+    gateway:
+      routes:
+        - id: app
+          uri: http://localhost:8081
+          predicates:
+            - Path=/orders/**, /menus/**, /orderStates/**
+```
+![image](https://user-images.githubusercontent.com/53729857/205836882-b940a8ac-e567-43c0-b569-4b6adc0aa981.png)
+![image](https://user-images.githubusercontent.com/53729857/205836894-5858d3c0-08d5-4bd7-b8b0-7dba84c23b8a.png)
 
 
 
