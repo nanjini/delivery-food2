@@ -190,6 +190,8 @@ gitpod /workspace/mall (main) $
 ```
 
 ## 2. CQRS 
+읽기 모델을 분리한다.
+
 
 
 ## 4. Request / Response
