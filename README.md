@@ -191,8 +191,7 @@ gitpod /workspace/mall (main) $
 
 ## 2. CQRS 
 읽기 모델을 분리한다.
-
-- 
+- app -> OrderStateViewHandler.java에서 이벤트에 따라 Real Model 저장, 업데이트, 삭제를 정의한다. 
 ```
 package mall.infra;
 
@@ -232,10 +231,120 @@ public class OrderStateViewHandler {
 }
 ```
 
+- 아래의 결과처럼 orderStates에 저장된다.
+```
+gitpod /workspace/mall (main) $ http :8081/orderStates
+HTTP/1.1 200 
+Connection: keep-alive
+Content-Type: application/hal+json
+Date: Tue, 06 Dec 2022 08:22:59 GMT
+Keep-Alive: timeout=60
+Transfer-Encoding: chunked
+Vary: Origin
+Vary: Access-Control-Request-Method
+Vary: Access-Control-Request-Headers
+
+{
+    "_embedded": {
+        "orderStates": []
+    },
+    "_links": {
+        "profile": {
+            "href": "http://localhost:8081/profile/orderStates"
+        },
+        "self": {
+            "href": "http://localhost:8081/orderStates"
+        }
+    },
+    "page": {
+        "number": 0,
+        "size": 20,
+        "totalElements": 0,
+        "totalPages": 0
+    }
+}
+
+
+gitpod /workspace/mall (main) $ http :8081/orders item="치킨" qty=10 price=200 state="주문접수-결재완료"
+HTTP/1.1 201 
+Connection: keep-alive
+Content-Type: application/json
+Date: Tue, 06 Dec 2022 08:23:10 GMT
+Keep-Alive: timeout=60
+Location: http://localhost:8081/orders/1
+Transfer-Encoding: chunked
+Vary: Origin
+Vary: Access-Control-Request-Method
+Vary: Access-Control-Request-Headers
+
+{
+    "_links": {
+        "order": {
+            "href": "http://localhost:8081/orders/1"
+        },
+        "self": {
+            "href": "http://localhost:8081/orders/1"
+        }
+    },
+    "item": "치킨",
+    "price": 200,
+    "qty": 10,
+    "state": "주문접수-결재완료"
+}
+
+
+gitpod /workspace/mall (main) $ http :8081/orderStates
+HTTP/1.1 200 
+Connection: keep-alive
+Content-Type: application/hal+json
+Date: Tue, 06 Dec 2022 08:23:23 GMT
+Keep-Alive: timeout=60
+Transfer-Encoding: chunked
+Vary: Origin
+Vary: Access-Control-Request-Method
+Vary: Access-Control-Request-Headers
+
+{
+    "_embedded": {
+        "orderStates": [
+            {
+                "_links": {
+                    "orderState": {
+                        "href": "http://localhost:8081/orderStates/1"
+                    },
+                    "self": {
+                        "href": "http://localhost:8081/orderStates/1"
+                    }
+                },
+                "item": "치킨",
+                "state": "생성"
+            }
+        ]
+    },
+    "_links": {
+        "profile": {
+            "href": "http://localhost:8081/profile/orderStates"
+        },
+        "self": {
+            "href": "http://localhost:8081/orderStates"
+        }
+    },
+    "page": {
+        "number": 0,
+        "size": 20,
+        "totalElements": 1,
+        "totalPages": 1
+    }
+}
+
+
+gitpod /workspace/mall (main) $ 
 ```
 
-```
+- 다만 위와 같은 모델로 구현할 경우 다른 도메인에 있는 이벤트에 따른 뷰를 제공하지 못하므로 단독 컨텍스트에 리얼 모델을 구현하여 보완이 필요함.
 
+## 3. Compensation / Correlation
+- 작성예정
 
 ## 4. Request / Response
 
