@@ -150,6 +150,22 @@ public class PaymentServiceFallBack implements PaymentService {
 - 실행 시 아래의 에러 로그를 app쪽 로그에서 확인가능
 ![image](https://user-images.githubusercontent.com/53729857/205817063-abf4008f-a96b-4f6f-8c28-b493878baf36.png)
 
+- 과부하 테스트 명령어
+![image](https://user-images.githubusercontent.com/53729857/205828449-8838f7cb-3342-48d6-b1e2-de4d36ccc191.png)
+
+- 초기상태
+![image](https://user-images.githubusercontent.com/53729857/205828846-d13262ad-8136-46d6-be86-53db3531fde9.png)
+
+- 요청이 점점 밀리는 것을 확인 가능
+![image](https://user-images.githubusercontent.com/53729857/205829022-646faa3b-1707-4a8e-9987-85f6d08a9cd3.png)
+
+- 종료
+![image](https://user-images.githubusercontent.com/53729857/205829348-11600e6b-6307-4586-9939-695e9e5f56d3.png)
+
+- WAS 로그 - 중간중간 FallBack 로그가 있음
+![image](https://user-images.githubusercontent.com/53729857/205829830-ea1edeac-a025-41fe-9d50-92d15ed502d7.png)
+
+## 6. Gateway / Ingress
 
 
 
