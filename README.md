@@ -343,6 +343,163 @@ gitpod /workspace/mall (main) $
 
 - 다만 위와 같은 모델로 구현할 경우 다른 도메인에 있는 이벤트에 따른 뷰를 제공하지 못하므로 단독 컨텍스트에 리얼 모델을 구현하여 보완이 필요함.
 
+## 2-1. CQRS
+- 수정된 모델 -> 단독 컨텍스트에 구현한 뒤 OrderPlaced 이벤트 발생과 OrderCanceled 이벤트 발생에 따른 리얼 모델의 변경 확인
+![image](https://user-images.githubusercontent.com/53729857/206223760-f2044d57-d801-41c6-8d1d-a01d053cf03d.png)
+
+```
+gitpod /workspace/mall (main) $ http :8081/orders item="치킨" qty=10 price=200 state="주문접수-결재완료"
+HTTP/1.1 201 
+Connection: keep-alive
+Content-Type: application/json
+Date: Wed, 07 Dec 2022 15:36:05 GMT
+Keep-Alive: timeout=60
+Location: http://localhost:8081/orders/1
+Transfer-Encoding: chunked
+Vary: Origin
+Vary: Access-Control-Request-Method
+Vary: Access-Control-Request-Headers
+
+{
+    "_links": {
+        "order": {
+            "href": "http://localhost:8081/orders/1"
+        },
+        "self": {
+            "href": "http://localhost:8081/orders/1"
+        }
+    },
+    "item": "치킨",
+    "price": 200,
+    "qty": 10,
+    "state": "주문접수-결재완료"
+}
+
+
+gitpod /workspace/mall (main) $ http :8086/orderStates
+HTTP/1.1 200 
+Connection: keep-alive
+Content-Type: application/hal+json
+Date: Wed, 07 Dec 2022 15:36:15 GMT
+Keep-Alive: timeout=60
+Transfer-Encoding: chunked
+Vary: Origin
+Vary: Access-Control-Request-Method
+Vary: Access-Control-Request-Headers
+
+{
+    "_embedded": {
+        "orderStates": [
+            {
+                "_links": {
+                    "orderState": {
+                        "href": "http://localhost:8086/orderStates/1"
+                    },
+                    "self": {
+                        "href": "http://localhost:8086/orderStates/1"
+                    }
+                },
+                "item": "치킨",
+                "orderState": "시작",
+                "payState": null
+            }
+        ]
+    },
+    "_links": {
+        "profile": {
+            "href": "http://localhost:8086/profile/orderStates"
+        },
+        "self": {
+            "href": "http://localhost:8086/orderStates"
+        }
+    },
+    "page": {
+        "number": 0,
+        "size": 20,
+        "totalElements": 1,
+        "totalPages": 1
+    }
+}
+
+
+gitpod /workspace/mall (main) $ http :8081/orders id=1 state="주문취소"
+HTTP/1.1 201 
+Connection: keep-alive
+Content-Type: application/json
+Date: Wed, 07 Dec 2022 15:36:22 GMT
+Keep-Alive: timeout=60
+Location: http://localhost:8081/orders/1
+Transfer-Encoding: chunked
+Vary: Origin
+Vary: Access-Control-Request-Method
+Vary: Access-Control-Request-Headers
+
+{
+    "_links": {
+        "order": {
+            "href": "http://localhost:8081/orders/1"
+        },
+        "self": {
+            "href": "http://localhost:8081/orders/1"
+        }
+    },
+    "item": null,
+    "price": null,
+    "qty": null,
+    "state": "주문취소"
+}
+
+
+gitpod /workspace/mall (main) $ http :8086/orderStates
+HTTP/1.1 200 
+Connection: keep-alive
+Content-Type: application/hal+json
+Date: Wed, 07 Dec 2022 15:36:49 GMT
+Keep-Alive: timeout=60
+Transfer-Encoding: chunked
+Vary: Origin
+Vary: Access-Control-Request-Method
+Vary: Access-Control-Request-Headers
+
+{
+    "_embedded": {
+        "orderStates": [
+            {
+                "_links": {
+                    "orderState": {
+                        "href": "http://localhost:8086/orderStates/1"
+                    },
+                    "self": {
+                        "href": "http://localhost:8086/orderStates/1"
+                    }
+                },
+                "item": "치킨",
+                "orderState": "시작",
+                "payState": "결제취소"
+            }
+        ]
+    },
+    "_links": {
+        "profile": {
+            "href": "http://localhost:8086/profile/orderStates"
+        },
+        "self": {
+            "href": "http://localhost:8086/orderStates"
+        }
+    },
+    "page": {
+        "number": 0,
+        "size": 20,
+        "totalElements": 1,
+        "totalPages": 1
+    }
+}
+
+gitpod /workspace/mall (main) $ 
+```
+
+
+
 ## 3. Compensation / Correlation
 - 작성예정
 
