@@ -17,6 +17,8 @@
 1. 고객이 주문상태를 중간중간 조회한다
 1. 주문상태가 바뀔 때 마다 카톡으로 알림을 보낸다
 1. 고객이 요리를 배달 받으면 배송확인 버튼을 탭하여, 모든 거래가 완료된다
+1. 고객이 시작되지 않은 주문을 취소하면 결재내역을 삭제한다.(추가)
+1. 고객이 요리를 배달 받고 배송확인 버튼을 탭하면 주문관리에서 상태를 업데이트한다.(추가)
 
 
 비기능적 요구사항
@@ -343,7 +345,7 @@ gitpod /workspace/mall (main) $
 
 - 다만 위와 같은 모델로 구현할 경우 다른 도메인에 있는 이벤트에 따른 뷰를 제공하지 못하므로 단독 컨텍스트에 리얼 모델을 구현하여 보완이 필요함.
 
-## 2-1. CQRS
+## 2-1. CQRS 
 - 수정된 모델 -> 단독 컨텍스트에 구현한 뒤 OrderPlaced 이벤트 발생과 OrderCanceled 이벤트 발생에 따른 리얼 모델의 변경 확인
 ![image](https://user-images.githubusercontent.com/53729857/206223760-f2044d57-d801-41c6-8d1d-a01d053cf03d.png)
 
@@ -498,10 +500,258 @@ Vary: Access-Control-Request-Headers
 gitpod /workspace/mall (main) $ 
 ```
 
-
-
 ## 3. Compensation / Correlation
-- 작성예정
+- 보상안과 그에대한 처리 -> OrderCanceled를 실행할 시 pay cancel 정책을 통해 결제내역을 삭제한다.
+- state가 주문취소일시 OrderCanceled 이벤트 pub
+![image](https://user-images.githubusercontent.com/53729857/206229269-54ba5dff-1967-4a27-97e3-fc3f4801a893.png)
+
+- OrderCanceled를 수신하는 pay쪽 PolicyHandler -> payCancel실행
+![image](https://user-images.githubusercontent.com/53729857/206231803-26fd6eff-6107-428d-9046-00f8c97530a6.png)
+
+- orderId 기반으로 Payment를 찾아 삭제 -> 그전에 PaymentRepository - findByOrderId(findBy컬럼명)으로 메소드 생성 필요
+![image](https://user-images.githubusercontent.com/53729857/206232727-7f86bc5e-59a3-42d3-89ed-6f6928a9c010.png)
+![image](https://user-images.githubusercontent.com/53729857/206232766-928b121f-ad14-4805-be5b-a8e54fe4f597.png)
+
+
+- 결과 -> order 업데이트, pay 삭제
+```
+gitpod /workspace/mall (main) $ http :8081/orders item="치킨" qty=10 price=200 state="주문접수-결재완료"
+HTTP/1.1 201 
+Connection: keep-alive
+Content-Type: application/json
+Date: Wed, 07 Dec 2022 16:14:32 GMT
+Keep-Alive: timeout=60
+Location: http://localhost:8081/orders/1
+Transfer-Encoding: chunked
+Vary: Origin
+Vary: Access-Control-Request-Method
+Vary: Access-Control-Request-Headers
+
+{
+    "_links": {
+        "order": {
+            "href": "http://localhost:8081/orders/1"
+        },
+        "self": {
+            "href": "http://localhost:8081/orders/1"
+        }
+    },
+    "item": "치킨",
+    "price": 200,
+    "qty": 10,
+    "state": "주문접수-결재완료"
+}
+
+
+gitpod /workspace/mall (main) $ http :8081/orders
+HTTP/1.1 200 
+Connection: keep-alive
+Content-Type: application/hal+json
+Date: Wed, 07 Dec 2022 16:14:38 GMT
+Keep-Alive: timeout=60
+Transfer-Encoding: chunked
+Vary: Origin
+Vary: Access-Control-Request-Method
+Vary: Access-Control-Request-Headers
+
+{
+    "_embedded": {
+        "orders": [
+            {
+                "_links": {
+                    "order": {
+                        "href": "http://localhost:8081/orders/1"
+                    },
+                    "self": {
+                        "href": "http://localhost:8081/orders/1"
+                    }
+                },
+                "item": "치킨",
+                "price": 200,
+                "qty": 10,
+                "state": "주문접수-결재완료"
+            }
+        ]
+    },
+    "_links": {
+        "profile": {
+            "href": "http://localhost:8081/profile/orders"
+        },
+        "self": {
+            "href": "http://localhost:8081/orders"
+        }
+    },
+    "page": {
+        "number": 0,
+        "size": 20,
+        "totalElements": 1,
+        "totalPages": 1
+    }
+}
+
+
+gitpod /workspace/mall (main) $ http :8084/payments
+HTTP/1.1 200 
+Connection: keep-alive
+Content-Type: application/hal+json
+Date: Wed, 07 Dec 2022 16:14:58 GMT
+Keep-Alive: timeout=60
+Transfer-Encoding: chunked
+Vary: Origin
+Vary: Access-Control-Request-Method
+Vary: Access-Control-Request-Headers
+
+{
+    "_embedded": {
+        "payments": [
+            {
+                "_links": {
+                    "payment": {
+                        "href": "http://localhost:8084/payments/1"
+                    },
+                    "self": {
+                        "href": "http://localhost:8084/payments/1"
+                    }
+                },
+                "action": "progress",
+                "amount": 2000,
+                "orderId": 1
+            }
+        ]
+    },
+    "_links": {
+        "profile": {
+            "href": "http://localhost:8084/profile/payments"
+        },
+        "search": {
+            "href": "http://localhost:8084/payments/search"
+        },
+        "self": {
+            "href": "http://localhost:8084/payments"
+        }
+    },
+    "page": {
+        "number": 0,
+        "size": 20,
+        "totalElements": 1,
+        "totalPages": 1
+    }
+}
+
+
+gitpod /workspace/mall (main) $ http :8081/orders id=1 state="주문취소"
+HTTP/1.1 201 
+Connection: keep-alive
+Content-Type: application/json
+Date: Wed, 07 Dec 2022 16:15:57 GMT
+Keep-Alive: timeout=60
+Location: http://localhost:8081/orders/1
+Transfer-Encoding: chunked
+Vary: Origin
+Vary: Access-Control-Request-Method
+Vary: Access-Control-Request-Headers
+
+{
+    "_links": {
+        "order": {
+            "href": "http://localhost:8081/orders/1"
+        },
+        "self": {
+            "href": "http://localhost:8081/orders/1"
+        }
+    },
+    "item": null,
+    "price": null,
+    "qty": null,
+    "state": "주문취소"
+}
+
+
+gitpod /workspace/mall (main) $ http :8081/orders
+HTTP/1.1 200 
+Connection: keep-alive
+Content-Type: application/hal+json
+Date: Wed, 07 Dec 2022 16:16:05 GMT
+Keep-Alive: timeout=60
+Transfer-Encoding: chunked
+Vary: Origin
+Vary: Access-Control-Request-Method
+Vary: Access-Control-Request-Headers
+
+{
+    "_embedded": {
+        "orders": [
+            {
+                "_links": {
+                    "order": {
+                        "href": "http://localhost:8081/orders/1"
+                    },
+                    "self": {
+                        "href": "http://localhost:8081/orders/1"
+                    }
+                },
+                "item": null,
+                "price": null,
+                "qty": null,
+                "state": "주문취소"
+            }
+        ]
+    },
+    "_links": {
+        "profile": {
+            "href": "http://localhost:8081/profile/orders"
+        },
+        "self": {
+            "href": "http://localhost:8081/orders"
+        }
+    },
+    "page": {
+        "number": 0,
+        "size": 20,
+        "totalElements": 1,
+        "totalPages": 1
+    }
+}
+
+
+gitpod /workspace/mall (main) $ http :8084/payments
+HTTP/1.1 200 
+Connection: keep-alive
+Content-Type: application/hal+json
+Date: Wed, 07 Dec 2022 16:16:19 GMT
+Keep-Alive: timeout=60
+Transfer-Encoding: chunked
+Vary: Origin
+Vary: Access-Control-Request-Method
+Vary: Access-Control-Request-Headers
+
+{
+    "_embedded": {
+        "payments": []
+    },
+    "_links": {
+        "profile": {
+            "href": "http://localhost:8084/profile/payments"
+        },
+        "search": {
+            "href": "http://localhost:8084/payments/search"
+        },
+        "self": {
+            "href": "http://localhost:8084/payments"
+        }
+    },
+    "page": {
+        "number": 0,
+        "size": 20,
+        "totalElements": 0,
+        "totalPages": 0
+    }
+}
+
+
+gitpod /workspace/mall (main) $ 
+```
+
 
 ## 4. Request / Response
 
