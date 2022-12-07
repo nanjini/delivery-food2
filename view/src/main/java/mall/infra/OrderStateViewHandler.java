@@ -48,7 +48,7 @@ public class OrderStateViewHandler {
             if( orderStateOptional.isPresent()) {
                  OrderState orderState = orderStateOptional.get();
             // view 객체에 이벤트의 eventDirectValue 를 set 함
-                orderState.setPayState("결제시작");    
+                orderState.setPayState("결제취소");    
                 // view 레파지 토리에 save
                  orderStateRepository.save(orderState);
                 }
