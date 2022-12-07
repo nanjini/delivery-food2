@@ -502,18 +502,23 @@ gitpod /workspace/mall (main) $
 
 ## 3. Compensation / Correlation
 - 보상안과 그에대한 처리 -> OrderCanceled를 실행할 시 pay cancel 정책을 통해 결제내역을 삭제한다.
-- state가 주문취소일시 OrderCanceled 이벤트 pub
+
+state가 주문취소일시 OrderCanceled 이벤트 pub
+
 ![image](https://user-images.githubusercontent.com/53729857/206229269-54ba5dff-1967-4a27-97e3-fc3f4801a893.png)
 
-- OrderCanceled를 수신하는 pay쪽 PolicyHandler -> payCancel실행
+OrderCanceled를 수신하는 pay쪽 PolicyHandler -> payCancel실행
+
 ![image](https://user-images.githubusercontent.com/53729857/206231803-26fd6eff-6107-428d-9046-00f8c97530a6.png)
 
-- orderId 기반으로 Payment를 찾아 삭제 -> 그전에 PaymentRepository - findByOrderId(findBy컬럼명)으로 메소드 생성 필요
+orderId 기반으로 Payment를 찾아 삭제 -> 그전에 PaymentRepository - findByOrderId(findBy컬럼명)으로 메소드 생성 필요
+
 ![image](https://user-images.githubusercontent.com/53729857/206232727-7f86bc5e-59a3-42d3-89ed-6f6928a9c010.png)
+
 ![image](https://user-images.githubusercontent.com/53729857/206232766-928b121f-ad14-4805-be5b-a8e54fe4f597.png)
 
 
-- 결과 -> order 업데이트, pay 삭제
+결과 -> order 업데이트, pay 삭제
 ```
 gitpod /workspace/mall (main) $ http :8081/orders item="치킨" qty=10 price=200 state="주문접수-결재완료"
 HTTP/1.1 201 
