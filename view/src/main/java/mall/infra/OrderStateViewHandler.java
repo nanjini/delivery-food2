@@ -39,11 +39,11 @@ public class OrderStateViewHandler {
 
 
     @StreamListener(KafkaProcessor.INPUT)
-    public void whenPaymentApproved_then_UPDATE_1(@Payload PaymentApproved paymentApproved) {
+    public void whenPaymentCanceled_then_UPDATE_1(@Payload PaymentCanceled paymentCanceled) {
         try {
-            if (!paymentApproved.validate()) return;
+            if (!paymentCanceled.validate()) return;
                 // view 객체 조회
-            Optional<OrderState> orderStateOptional = orderStateRepository.findById(paymentApproved.getId());
+            Optional<OrderState> orderStateOptional = orderStateRepository.findById(paymentCanceled.getId());
 
             if( orderStateOptional.isPresent()) {
                  OrderState orderState = orderStateOptional.get();

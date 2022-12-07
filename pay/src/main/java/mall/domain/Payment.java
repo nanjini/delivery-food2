@@ -91,25 +91,9 @@ public class Payment  {
 
 
     public static void payCancel(OrderCanceled orderCanceled){
-
-        /** Example 1:  new item 
-        Payment payment = new Payment();
-        repository().save(payment);
-
-        */
-
-        /** Example 2:  finding and process
-        
-        repository().findById(orderCanceled.get???()).ifPresent(payment->{
-            
-            payment // do something
-            repository().save(payment);
-
-
-         });
-        */
-
-        
+        PaymentCanceled paymentCanceled = new PaymentCanceled();
+        paymentCanceled.setId(orderCanceled.getId());
+        paymentCanceled.publishAfterCommit();
     }
     public static void payCancel(OrderManagementCanceled orderManagementCanceled){
 

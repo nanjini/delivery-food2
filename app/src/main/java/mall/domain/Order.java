@@ -56,14 +56,23 @@ public class Order  {
         mall.external.Payment payment = new mall.external.Payment();
         
         payment.setOrderId(id);
-        payment.setAction("progress");
         payment.setAmount(qty*price);
-
+        payment.setAction("progress");
+    
         AppApplication.applicationContext.getBean(mall.external.PaymentService.class)
             .pay(payment);
-
+    
         OrderPlaced orderPlaced = new OrderPlaced(this);
         orderPlaced.publishAfterCommit();
+        
+    }
+
+    @PostUpdate
+    public void onPostUpdate(){
+        if(state.equals("주문취소")){
+            OrderCanceled orderCanceled = new OrderCanceled(this);
+            orderCanceled.publishAfterCommit();
+        }
     }
 
     public static OrderRepository repository(){
