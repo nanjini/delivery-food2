@@ -60,6 +60,7 @@
 # 체크포인트
 ## 1. Saga(Pub/Sub)
 ![saga](https://user-images.githubusercontent.com/85158266/219257066-f832a676-5e77-4341-8ede-4ae036f35576.JPG)
+
 orders로 post 요청을 보내면 OrderPlaced에서 pay에 있는 pay커맨드로 요청을 전달한다.(req/res : 동기)
 그 후에 pay에서 PaymentApproved이벤트를 거쳐 store에 있는 receipt정책으로 이벤트를 전달한다.(Pub/Sub : 비동기)
 아래는 orders post요청으로 3개의 테이블에 데이터가 들어간 것을 확인한 증적이다.
