@@ -917,7 +917,6 @@ spring:
 ![image](https://user-images.githubusercontent.com/53729857/205836882-b940a8ac-e567-43c0-b569-4b6adc0aa981.png)
 ![image](https://user-images.githubusercontent.com/53729857/205836894-5858d3c0-08d5-4bd7-b8b0-7dba84c23b8a.png)
 
-## 6. Gateway / Ingress
 
 # 기타
 ## Before Running Services
