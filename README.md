@@ -762,10 +762,12 @@ gitpod /workspace/mall (main) $
 
 ESK Cluster 내에서 kubectl get all 명령으로 조회
 
+
 ## 2. Gateway Service Router 설치
 ![gateway](https://user-images.githubusercontent.com/85158266/219266042-3f6567bc-f507-40c9-8b4b-3adc053ff39d.JPG)
 
 service 목록에 외부 노출 LoadBalancer 타입의 gateway 배포
+
 
 ## 3. Autoscale (HPA)
 
@@ -776,17 +778,21 @@ siege -c20 -t40S -v http://customer:8080/customer 명령으로 부하를 발생�
 
 부하 발생 전 pod 갯수
 
+
 ![before_siege_hpa](https://user-images.githubusercontent.com/85158266/219268539-d843fe22-bc39-41e3-b87d-3b48218acdc7.JPG)
 
 부하 발생 전 hpa
+
 
 ![siege_pod](https://user-images.githubusercontent.com/85158266/219268555-956d5f8b-a235-4eb7-9dec-de94c6711f82.JPG)
 
 부하 발생 직 후 pod 생성
 
+
 ![after_siege_pod_hpa](https://user-images.githubusercontent.com/85158266/219268563-5a1f1edd-d6a0-420c-9b20-ccf51ee9cbf4.JPG)
 
 부하 발생 후 pod 과 hpa 상태
+
 
 
 # 그외
