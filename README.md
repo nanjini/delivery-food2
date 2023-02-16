@@ -861,7 +861,7 @@ public class PaymentServiceFallBack implements PaymentService {
 ![image](https://user-images.githubusercontent.com/53729857/205829830-ea1edeac-a025-41fe-9d50-92d15ed502d7.png)
 
 ## 6. Gateway / Ingress
-gateway의 라우터 설정으로 :8081/orders 요청과 :8088/orders 요청이 같은 서비스를 제공한다.
+gateway의 라우터 설정으로 http://a9be8acfa40bf45dd861a2cd4b56fddd-1444298964.ap-northeast-2.elb.amazonaws.com:8080/ 으로 각 서비스로 라우팅 서비스를 제공한다.
 ```
 spring:
   profiles: default
@@ -869,7 +869,7 @@ spring:
     gateway:
       routes:
         - id: app
-          uri: http://localhost:8081
+          uri: http://a9be8acfa40bf45dd861a2cd4b56fddd-1444298964.ap-northeast-2.elb.amazonaws.com:8080/
           predicates:
             - Path=/orders/**, /menus/**, /orderStates/**
 ```
