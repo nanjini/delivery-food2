@@ -15,10 +15,7 @@
 1. 요리가 완료되면 고객의 지역 인근의 라이더들에 의해 배송건 조회가 가능하다
 1. 라이더가 해당 요리를 Pick한 후, 앱을 통해 통보한다.
 1. 고객이 주문상태를 중간중간 조회한다
-1. 주문상태가 바뀔 때 마다 카톡으로 알림을 보낸다
-1. 고객이 요리를 배달 받으면 배송확인 버튼을 탭하여, 모든 거래가 완료된다
-1. 고객이 시작되지 않은 주문을 취소하면 결재내역을 삭제한다.(추가)
-1. 고객이 요리를 배달 받고 배송확인 버튼을 탭하면 주문관리에서 상태를 업데이트한다.(추가)
+1. 라이더의 배달이 끝나면 배송확인 버튼으로 모든 거래가 완료된다.
 
 
 비기능적 요구사항
@@ -62,30 +59,29 @@
 
 # 체크포인트
 ## 1. Saga(Pub/Sub)
+![saga](https://user-images.githubusercontent.com/85158266/219257066-f832a676-5e77-4341-8ede-4ae036f35576.JPG)
 orders로 post 요청을 보내면 OrderPlaced에서 pay에 있는 pay커맨드로 요청을 전달한다.(req/res : 동기)
 그 후에 pay에서 PaymentApproved이벤트를 거쳐 store에 있는 receipt정책으로 이벤트를 전달한다.(Pub/Sub : 비동기)
 아래는 orders post요청으로 3개의 테이블에 데이터가 들어간 것을 확인한 증적이다.
 
 ```
-gitpod /workspace/mall (main) $ http :8081/orders item="치킨" qty=10 price=200 state="주문접수-결재완료"
-HTTP/1.1 201 
-Connection: keep-alive
+gitpod /workspace/mall (main) $ http POST http://a9be8acfa40bf45dd861a2cd4b56fddd-1444298964.ap-northeast-2.elb.amazonaws.com:8080/orders item="치킨" qty=10 price=200 state="주문접수-결재완료"
+HTTP/1.1 201 Created
 Content-Type: application/json
-Date: Tue, 06 Dec 2022 06:19:20 GMT
-Keep-Alive: timeout=60
-Location: http://localhost:8081/orders/1
-Transfer-Encoding: chunked
+Date: Thu, 16 Feb 2023 03:04:53 GMT
+Location: http://a9be8acfa40bf45dd861a2cd4b56fddd-1444298964.ap-northeast-2.elb.amazonaws.com:8080/orders/1
 Vary: Origin
 Vary: Access-Control-Request-Method
 Vary: Access-Control-Request-Headers
+transfer-encoding: chunked
 
 {
     "_links": {
         "order": {
-            "href": "http://localhost:8081/orders/1"
+            "href": "http://a9be8acfa40bf45dd861a2cd4b56fddd-1444298964.ap-northeast-2.elb.amazonaws.com:8080/orders/1"
         },
         "self": {
-            "href": "http://localhost:8081/orders/1"
+            "href": "http://a9be8acfa40bf45dd861a2cd4b56fddd-1444298964.ap-northeast-2.elb.amazonaws.com:8080/orders/1"
         }
     },
     "item": "치킨",
@@ -95,7 +91,7 @@ Vary: Access-Control-Request-Headers
 }
 
 
-gitpod /workspace/mall (main) $ http :8084/payments
+gitpod /workspace/mall (main) $ http://a9be8acfa40bf45dd861a2cd4b56fddd-1444298964.ap-northeast-2.elb.amazonaws.com:8080/payments
 HTTP/1.1 200 
 Connection: keep-alive
 Content-Type: application/hal+json
@@ -112,10 +108,10 @@ Vary: Access-Control-Request-Headers
             {
                 "_links": {
                     "payment": {
-                        "href": "http://localhost:8084/payments/1"
+                        "href": "http://a9be8acfa40bf45dd861a2cd4b56fddd-1444298964.ap-northeast-2.elb.amazonaws.com:8080/payments/1"
                     },
                     "self": {
-                        "href": "http://localhost:8084/payments/1"
+                        "href": "http://a9be8acfa40bf45dd861a2cd4b56fddd-1444298964.ap-northeast-2.elb.amazonaws.com:8080/payments/1"
                     }
                 },
                 "action": "progress",
@@ -126,10 +122,10 @@ Vary: Access-Control-Request-Headers
     },
     "_links": {
         "profile": {
-            "href": "http://localhost:8084/profile/payments"
+            "href": "http://a9be8acfa40bf45dd861a2cd4b56fddd-1444298964.ap-northeast-2.elb.amazonaws.com:8080/profile/payments"
         },
         "self": {
-            "href": "http://localhost:8084/payments"
+            "href": "http://a9be8acfa40bf45dd861a2cd4b56fddd-1444298964.ap-northeast-2.elb.amazonaws.com:8080/payments"
         }
     },
     "page": {
@@ -141,7 +137,7 @@ Vary: Access-Control-Request-Headers
 }
 
 
-gitpod /workspace/mall (main) $ http :8082/orderManagements
+gitpod /workspace/mall (main) $ http://a9be8acfa40bf45dd861a2cd4b56fddd-1444298964.ap-northeast-2.elb.amazonaws.com:8080/orderManagements
 HTTP/1.1 200 
 Connection: keep-alive
 Content-Type: application/hal+json
@@ -158,10 +154,10 @@ Vary: Access-Control-Request-Headers
             {
                 "_links": {
                     "orderManagement": {
-                        "href": "http://localhost:8082/orderManagements/1"
+                        "href": "http://a9be8acfa40bf45dd861a2cd4b56fddd-1444298964.ap-northeast-2.elb.amazonaws.com:8080/orderManagements/1"
                     },
                     "self": {
-                        "href": "http://localhost:8082/orderManagements/1"
+                        "href": "http://a9be8acfa40bf45dd861a2cd4b56fddd-1444298964.ap-northeast-2.elb.amazonaws.com:8080/orderManagements/1"
                     }
                 },
                 "address": "test주소",
@@ -173,10 +169,10 @@ Vary: Access-Control-Request-Headers
     },
     "_links": {
         "profile": {
-            "href": "http://localhost:8082/profile/orderManagements"
+            "href": "http://a9be8acfa40bf45dd861a2cd4b56fddd-1444298964.ap-northeast-2.elb.amazonaws.com:8080/orderManagements"
         },
         "self": {
-            "href": "http://localhost:8082/orderManagements"
+            "href": "http://a9be8acfa40bf45dd861a2cd4b56fddd-1444298964.ap-northeast-2.elb.amazonaws.com:8080/orderManagements"
         }
     },
     "page": {
@@ -192,6 +188,7 @@ gitpod /workspace/mall (main) $
 ```
 
 ## 2. CQRS 
+![cqrs](https://user-images.githubusercontent.com/85158266/219261446-c99c0335-b11c-4373-9057-84fa5dbf764e.JPG)
 읽기 모델을 분리한다.
 - app -> OrderStateViewHandler.java에서 이벤트에 따라 Real Model 저장, 업데이트, 삭제를 정의한다. 
 ```
@@ -235,7 +232,7 @@ public class OrderStateViewHandler {
 
 - 아래의 결과처럼 orderStates에 저장된다.
 ```
-gitpod /workspace/mall (main) $ http :8081/orderStates
+gitpod /workspace/mall (main) $ http://a9be8acfa40bf45dd861a2cd4b56fddd-1444298964.ap-northeast-2.elb.amazonaws.com:8080/orderStates
 HTTP/1.1 200 
 Connection: keep-alive
 Content-Type: application/hal+json
@@ -252,10 +249,10 @@ Vary: Access-Control-Request-Headers
     },
     "_links": {
         "profile": {
-            "href": "http://localhost:8081/profile/orderStates"
+            "href": "http://a9be8acfa40bf45dd861a2cd4b56fddd-1444298964.ap-northeast-2.elb.amazonaws.com:8080/profile/orderStates"
         },
         "self": {
-            "href": "http://localhost:8081/orderStates"
+            "href": "http://a9be8acfa40bf45dd861a2cd4b56fddd-1444298964.ap-northeast-2.elb.amazonaws.com:8080/orderStates"
         }
     },
     "page": {
@@ -267,13 +264,13 @@ Vary: Access-Control-Request-Headers
 }
 
 
-gitpod /workspace/mall (main) $ http :8081/orders item="치킨" qty=10 price=200 state="주문접수-결재완료"
+gitpod /workspace/mall (main) $ http://a9be8acfa40bf45dd861a2cd4b56fddd-1444298964.ap-northeast-2.elb.amazonaws.com:8080/orders item="치킨" qty=10 price=200 state="주문접수-결재완료"
 HTTP/1.1 201 
 Connection: keep-alive
 Content-Type: application/json
 Date: Tue, 06 Dec 2022 08:23:10 GMT
 Keep-Alive: timeout=60
-Location: http://localhost:8081/orders/1
+Location: http://a9be8acfa40bf45dd861a2cd4b56fddd-1444298964.ap-northeast-2.elb.amazonaws.com:8080/orders/1
 Transfer-Encoding: chunked
 Vary: Origin
 Vary: Access-Control-Request-Method
@@ -282,10 +279,10 @@ Vary: Access-Control-Request-Headers
 {
     "_links": {
         "order": {
-            "href": "http://localhost:8081/orders/1"
+            "href": "http://a9be8acfa40bf45dd861a2cd4b56fddd-1444298964.ap-northeast-2.elb.amazonaws.com:8080/orders/1"
         },
         "self": {
-            "href": "http://localhost:8081/orders/1"
+            "href": "http://a9be8acfa40bf45dd861a2cd4b56fddd-1444298964.ap-northeast-2.elb.amazonaws.com:8080/orders/1"
         }
     },
     "item": "치킨",
@@ -312,10 +309,10 @@ Vary: Access-Control-Request-Headers
             {
                 "_links": {
                     "orderState": {
-                        "href": "http://localhost:8081/orderStates/1"
+                        "href": "http://a9be8acfa40bf45dd861a2cd4b56fddd-1444298964.ap-northeast-2.elb.amazonaws.com:8080/orderStates/1"
                     },
                     "self": {
-                        "href": "http://localhost:8081/orderStates/1"
+                        "href": "http://a9be8acfa40bf45dd861a2cd4b56fddd-1444298964.ap-northeast-2.elb.amazonaws.com:8080/orderStates/1"
                     }
                 },
                 "item": "치킨",
@@ -325,10 +322,10 @@ Vary: Access-Control-Request-Headers
     },
     "_links": {
         "profile": {
-            "href": "http://localhost:8081/profile/orderStates"
+            "href": "http://a9be8acfa40bf45dd861a2cd4b56fddd-1444298964.ap-northeast-2.elb.amazonaws.com:8080/profile/orderStates"
         },
         "self": {
-            "href": "http://localhost:8081/orderStates"
+            "href": "http://a9be8acfa40bf45dd861a2cd4b56fddd-1444298964.ap-northeast-2.elb.amazonaws.com:8080/orderStates"
         }
     },
     "page": {
@@ -343,20 +340,19 @@ Vary: Access-Control-Request-Headers
 gitpod /workspace/mall (main) $ 
 ```
 
-- 다만 위와 같은 모델로 구현할 경우 다른 도메인에 있는 이벤트에 따른 뷰를 제공하지 못하므로 단독 컨텍스트에 리얼 모델을 구현하여 보완이 필요함.
 
 ## 2-1. CQRS 
 - 수정된 모델 -> 단독 컨텍스트에 구현한 뒤 OrderPlaced 이벤트 발생과 OrderCanceled 이벤트 발생에 따른 리얼 모델의 변경 확인
 ![image](https://user-images.githubusercontent.com/53729857/206223760-f2044d57-d801-41c6-8d1d-a01d053cf03d.png)
 
 ```
-gitpod /workspace/mall (main) $ http :8081/orders item="치킨" qty=10 price=200 state="주문접수-결재완료"
+gitpod /workspace/mall (main) $ http://a9be8acfa40bf45dd861a2cd4b56fddd-1444298964.ap-northeast-2.elb.amazonaws.com:8080/orders item="치킨" qty=10 price=200 state="주문접수-결재완료"
 HTTP/1.1 201 
 Connection: keep-alive
 Content-Type: application/json
 Date: Wed, 07 Dec 2022 15:36:05 GMT
 Keep-Alive: timeout=60
-Location: http://localhost:8081/orders/1
+Location: http://a9be8acfa40bf45dd861a2cd4b56fddd-1444298964.ap-northeast-2.elb.amazonaws.com:8080/orders/1
 Transfer-Encoding: chunked
 Vary: Origin
 Vary: Access-Control-Request-Method
@@ -365,10 +361,10 @@ Vary: Access-Control-Request-Headers
 {
     "_links": {
         "order": {
-            "href": "http://localhost:8081/orders/1"
+            "href": "http://a9be8acfa40bf45dd861a2cd4b56fddd-1444298964.ap-northeast-2.elb.amazonaws.com:8080/orders/1"
         },
         "self": {
-            "href": "http://localhost:8081/orders/1"
+            "href": "http://a9be8acfa40bf45dd861a2cd4b56fddd-1444298964.ap-northeast-2.elb.amazonaws.com:8080/orders/1"
         }
     },
     "item": "치킨",
@@ -378,7 +374,7 @@ Vary: Access-Control-Request-Headers
 }
 
 
-gitpod /workspace/mall (main) $ http :8086/orderStates
+gitpod /workspace/mall (main) $ http://a9be8acfa40bf45dd861a2cd4b56fddd-1444298964.ap-northeast-2.elb.amazonaws.com:8080/orderStates
 HTTP/1.1 200 
 Connection: keep-alive
 Content-Type: application/hal+json
@@ -395,10 +391,10 @@ Vary: Access-Control-Request-Headers
             {
                 "_links": {
                     "orderState": {
-                        "href": "http://localhost:8086/orderStates/1"
+                        "href": "http://a9be8acfa40bf45dd861a2cd4b56fddd-1444298964.ap-northeast-2.elb.amazonaws.com:8080/orderStates/1"
                     },
                     "self": {
-                        "href": "http://localhost:8086/orderStates/1"
+                        "href": "http://a9be8acfa40bf45dd861a2cd4b56fddd-1444298964.ap-northeast-2.elb.amazonaws.com:8080/orderStates/1"
                     }
                 },
                 "item": "치킨",
@@ -409,10 +405,10 @@ Vary: Access-Control-Request-Headers
     },
     "_links": {
         "profile": {
-            "href": "http://localhost:8086/profile/orderStates"
+            "href": "http://a9be8acfa40bf45dd861a2cd4b56fddd-1444298964.ap-northeast-2.elb.amazonaws.com:8080/profile/orderStates"
         },
         "self": {
-            "href": "http://localhost:8086/orderStates"
+            "href": "http://a9be8acfa40bf45dd861a2cd4b56fddd-1444298964.ap-northeast-2.elb.amazonaws.com:8080/orderStates"
         }
     },
     "page": {
@@ -424,13 +420,13 @@ Vary: Access-Control-Request-Headers
 }
 
 
-gitpod /workspace/mall (main) $ http :8081/orders id=1 state="주문취소"
+gitpod /workspace/mall (main) $ http://a9be8acfa40bf45dd861a2cd4b56fddd-1444298964.ap-northeast-2.elb.amazonaws.com:8080/orders id=1 state="주문취소"
 HTTP/1.1 201 
 Connection: keep-alive
 Content-Type: application/json
 Date: Wed, 07 Dec 2022 15:36:22 GMT
 Keep-Alive: timeout=60
-Location: http://localhost:8081/orders/1
+Location: http://a9be8acfa40bf45dd861a2cd4b56fddd-1444298964.ap-northeast-2.elb.amazonaws.com:8080/orders/1
 Transfer-Encoding: chunked
 Vary: Origin
 Vary: Access-Control-Request-Method
@@ -439,10 +435,10 @@ Vary: Access-Control-Request-Headers
 {
     "_links": {
         "order": {
-            "href": "http://localhost:8081/orders/1"
+            "href": "http://a9be8acfa40bf45dd861a2cd4b56fddd-1444298964.ap-northeast-2.elb.amazonaws.com:8080/orders/1"
         },
         "self": {
-            "href": "http://localhost:8081/orders/1"
+            "href": "http://a9be8acfa40bf45dd861a2cd4b56fddd-1444298964.ap-northeast-2.elb.amazonaws.com:8080/orders/1"
         }
     },
     "item": null,
@@ -452,7 +448,7 @@ Vary: Access-Control-Request-Headers
 }
 
 
-gitpod /workspace/mall (main) $ http :8086/orderStates
+gitpod /workspace/mall (main) $ http://a9be8acfa40bf45dd861a2cd4b56fddd-1444298964.ap-northeast-2.elb.amazonaws.com:8080/orderStates
 HTTP/1.1 200 
 Connection: keep-alive
 Content-Type: application/hal+json
@@ -469,10 +465,10 @@ Vary: Access-Control-Request-Headers
             {
                 "_links": {
                     "orderState": {
-                        "href": "http://localhost:8086/orderStates/1"
+                        "href": "http://a9be8acfa40bf45dd861a2cd4b56fddd-1444298964.ap-northeast-2.elb.amazonaws.com:8080/orderStates/1"
                     },
                     "self": {
-                        "href": "http://localhost:8086/orderStates/1"
+                        "href": "http://a9be8acfa40bf45dd861a2cd4b56fddd-1444298964.ap-northeast-2.elb.amazonaws.com:8080/orderStates/1"
                     }
                 },
                 "item": "치킨",
@@ -483,10 +479,10 @@ Vary: Access-Control-Request-Headers
     },
     "_links": {
         "profile": {
-            "href": "http://localhost:8086/profile/orderStates"
+            "href": "http://a9be8acfa40bf45dd861a2cd4b56fddd-1444298964.ap-northeast-2.elb.amazonaws.com:8080/profile/orderStates"
         },
         "self": {
-            "href": "http://localhost:8086/orderStates"
+            "href": "http://a9be8acfa40bf45dd861a2cd4b56fddd-1444298964.ap-northeast-2.elb.amazonaws.com:8080/orderStates"
         }
     },
     "page": {
@@ -520,13 +516,13 @@ orderId 기반으로 Payment를 찾아 삭제 -> 그전에 PaymentRepository - f
 
 결과 -> order 업데이트, pay 삭제
 ```
-gitpod /workspace/mall (main) $ http :8081/orders item="치킨" qty=10 price=200 state="주문접수-결재완료"
+gitpod /workspace/mall (main) $ http://a9be8acfa40bf45dd861a2cd4b56fddd-1444298964.ap-northeast-2.elb.amazonaws.com:8080/ item="치킨" qty=10 price=200 state="주문접수-결재완료"
 HTTP/1.1 201 
 Connection: keep-alive
 Content-Type: application/json
 Date: Wed, 07 Dec 2022 16:14:32 GMT
 Keep-Alive: timeout=60
-Location: http://localhost:8081/orders/1
+Location: http://a9be8acfa40bf45dd861a2cd4b56fddd-1444298964.ap-northeast-2.elb.amazonaws.com:8080/orders/1
 Transfer-Encoding: chunked
 Vary: Origin
 Vary: Access-Control-Request-Method
@@ -535,10 +531,10 @@ Vary: Access-Control-Request-Headers
 {
     "_links": {
         "order": {
-            "href": "http://localhost:8081/orders/1"
+            "href": "http://http://a9be8acfa40bf45dd861a2cd4b56fddd-1444298964.ap-northeast-2.elb.amazonaws.com:8080/orders/1"
         },
         "self": {
-            "href": "http://localhost:8081/orders/1"
+            "href": "http://a9be8acfa40bf45dd861a2cd4b56fddd-1444298964.ap-northeast-2.elb.amazonaws.com:8080/orders/1"
         }
     },
     "item": "치킨",
@@ -548,7 +544,7 @@ Vary: Access-Control-Request-Headers
 }
 
 
-gitpod /workspace/mall (main) $ http :8081/orders
+gitpod /workspace/mall (main) $ http://a9be8acfa40bf45dd861a2cd4b56fddd-1444298964.ap-northeast-2.elb.amazonaws.com:8080/orders
 HTTP/1.1 200 
 Connection: keep-alive
 Content-Type: application/hal+json
@@ -565,10 +561,10 @@ Vary: Access-Control-Request-Headers
             {
                 "_links": {
                     "order": {
-                        "href": "http://localhost:8081/orders/1"
+                        "href": "http://a9be8acfa40bf45dd861a2cd4b56fddd-1444298964.ap-northeast-2.elb.amazonaws.com:8080/orders/1"
                     },
                     "self": {
-                        "href": "http://localhost:8081/orders/1"
+                        "href": "http://a9be8acfa40bf45dd861a2cd4b56fddd-1444298964.ap-northeast-2.elb.amazonaws.com:8080/orders/1"
                     }
                 },
                 "item": "치킨",
@@ -580,10 +576,10 @@ Vary: Access-Control-Request-Headers
     },
     "_links": {
         "profile": {
-            "href": "http://localhost:8081/profile/orders"
+            "href": "http://a9be8acfa40bf45dd861a2cd4b56fddd-1444298964.ap-northeast-2.elb.amazonaws.com:8080/profile/orders"
         },
         "self": {
-            "href": "http://localhost:8081/orders"
+            "href": "http://a9be8acfa40bf45dd861a2cd4b56fddd-1444298964.ap-northeast-2.elb.amazonaws.com:8080/orders"
         }
     },
     "page": {
@@ -612,10 +608,10 @@ Vary: Access-Control-Request-Headers
             {
                 "_links": {
                     "payment": {
-                        "href": "http://localhost:8084/payments/1"
+                        "href": "http://a9be8acfa40bf45dd861a2cd4b56fddd-1444298964.ap-northeast-2.elb.amazonaws.com:8080/payments/1"
                     },
                     "self": {
-                        "href": "http://localhost:8084/payments/1"
+                        "href": "http://a9be8acfa40bf45dd861a2cd4b56fddd-1444298964.ap-northeast-2.elb.amazonaws.com:8080/payments/1"
                     }
                 },
                 "action": "progress",
@@ -626,13 +622,13 @@ Vary: Access-Control-Request-Headers
     },
     "_links": {
         "profile": {
-            "href": "http://localhost:8084/profile/payments"
+            "href": "http://a9be8acfa40bf45dd861a2cd4b56fddd-1444298964.ap-northeast-2.elb.amazonaws.com:8080/profile/payments"
         },
         "search": {
-            "href": "http://localhost:8084/payments/search"
+            "href": "http://a9be8acfa40bf45dd861a2cd4b56fddd-1444298964.ap-northeast-2.elb.amazonaws.com:8080/payments/search"
         },
         "self": {
-            "href": "http://localhost:8084/payments"
+            "href": "http://a9be8acfa40bf45dd861a2cd4b56fddd-1444298964.ap-northeast-2.elb.amazonaws.com:8080/payments"
         }
     },
     "page": {
@@ -650,7 +646,7 @@ Connection: keep-alive
 Content-Type: application/json
 Date: Wed, 07 Dec 2022 16:15:57 GMT
 Keep-Alive: timeout=60
-Location: http://localhost:8081/orders/1
+Location: http://a9be8acfa40bf45dd861a2cd4b56fddd-1444298964.ap-northeast-2.elb.amazonaws.com:8080/orders/1
 Transfer-Encoding: chunked
 Vary: Origin
 Vary: Access-Control-Request-Method
@@ -659,10 +655,10 @@ Vary: Access-Control-Request-Headers
 {
     "_links": {
         "order": {
-            "href": "http://localhost:8081/orders/1"
+            "href": "http://a9be8acfa40bf45dd861a2cd4b56fddd-1444298964.ap-northeast-2.elb.amazonaws.com:8080/orders/1"
         },
         "self": {
-            "href": "http://localhost:8081/orders/1"
+            "href": "http://a9be8acfa40bf45dd861a2cd4b56fddd-1444298964.ap-northeast-2.elb.amazonaws.com:8080/orders/1"
         }
     },
     "item": null,
@@ -672,7 +668,7 @@ Vary: Access-Control-Request-Headers
 }
 
 
-gitpod /workspace/mall (main) $ http :8081/orders
+gitpod /workspace/mall (main) $ http://a9be8acfa40bf45dd861a2cd4b56fddd-1444298964.ap-northeast-2.elb.amazonaws.com:8080/orders
 HTTP/1.1 200 
 Connection: keep-alive
 Content-Type: application/hal+json
@@ -689,10 +685,10 @@ Vary: Access-Control-Request-Headers
             {
                 "_links": {
                     "order": {
-                        "href": "http://localhost:8081/orders/1"
+                        "href": "http://a9be8acfa40bf45dd861a2cd4b56fddd-1444298964.ap-northeast-2.elb.amazonaws.com:8080/orders/1"
                     },
                     "self": {
-                        "href": "http://localhost:8081/orders/1"
+                        "href": "http://a9be8acfa40bf45dd861a2cd4b56fddd-1444298964.ap-northeast-2.elb.amazonaws.com:8080/orders/1"
                     }
                 },
                 "item": null,
@@ -704,10 +700,10 @@ Vary: Access-Control-Request-Headers
     },
     "_links": {
         "profile": {
-            "href": "http://localhost:8081/profile/orders"
+            "href": "http://http://a9be8acfa40bf45dd861a2cd4b56fddd-1444298964.ap-northeast-2.elb.amazonaws.com:8080/profile/orders"
         },
         "self": {
-            "href": "http://localhost:8081/orders"
+            "href": "http://a9be8acfa40bf45dd861a2cd4b56fddd-1444298964.ap-northeast-2.elb.amazonaws.com:8080/orders"
         }
     },
     "page": {
@@ -719,7 +715,7 @@ Vary: Access-Control-Request-Headers
 }
 
 
-gitpod /workspace/mall (main) $ http :8084/payments
+gitpod /workspace/mall (main) $ http://a9be8acfa40bf45dd861a2cd4b56fddd-1444298964.ap-northeast-2.elb.amazonaws.com:8080/payments
 HTTP/1.1 200 
 Connection: keep-alive
 Content-Type: application/hal+json
@@ -736,13 +732,13 @@ Vary: Access-Control-Request-Headers
     },
     "_links": {
         "profile": {
-            "href": "http://localhost:8084/profile/payments"
+            "href": "http://a9be8acfa40bf45dd861a2cd4b56fddd-1444298964.ap-northeast-2.elb.amazonaws.com:8080/profile/payments"
         },
         "search": {
-            "href": "http://localhost:8084/payments/search"
+            "href": "http://a9be8acfa40bf45dd861a2cd4b56fddd-1444298964.ap-northeast-2.elb.amazonaws.com:8080/payments/search"
         },
         "self": {
-            "href": "http://localhost:8084/payments"
+            "href": "http://a9be8acfa40bf45dd861a2cd4b56fddd-1444298964.ap-northeast-2.elb.amazonaws.com:8080/payments"
         }
     },
     "page": {
