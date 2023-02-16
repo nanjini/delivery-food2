@@ -58,6 +58,7 @@
   
 
 # 체크포인트
+# Microservice Implementation
 ## 1. Saga(Pub/Sub)
 ![saga](https://user-images.githubusercontent.com/85158266/219257066-f832a676-5e77-4341-8ede-4ae036f35576.JPG)
 
@@ -754,8 +755,38 @@ Vary: Access-Control-Request-Headers
 gitpod /workspace/mall (main) $ 
 ```
 
+# Microservice Orchestration
 
-## 4. Request / Response
+## 1. Deploy to EKS Cluster
+![deploy](https://user-images.githubusercontent.com/85158266/219265698-179cf74f-d242-4bff-9d80-7faacdb45956.JPG)
+
+ESK Cluster 내에서 kubectl get all 명령으로 조회
+
+## 2. Gateway Service Router 설치
+![gateway](https://user-images.githubusercontent.com/85158266/219266042-3f6567bc-f507-40c9-8b4b-3adc053ff39d.JPG)
+
+service 목록에 외부 노출 LoadBalancer 타입의 gateway 배포
+
+## 3. Autoscale (HPA)
+
+siege pod 내에서 부하를 발생시켜 Autoscale동작을 확인
+siege -c20 -t40S -v http://customer:8080/customer 명령으로 부하를 발생시킨다.
+
+![before_siege_pod](https://user-images.githubusercontent.com/85158266/219268519-dd52208f-1d08-4b92-a0be-48cdfac77e79.JPG)
+부하 발생 전 pod 갯수
+
+![before_siege_hpa](https://user-images.githubusercontent.com/85158266/219268539-d843fe22-bc39-41e3-b87d-3b48218acdc7.JPG)
+부하 발생 전 hpa
+
+![siege_pod](https://user-images.githubusercontent.com/85158266/219268555-956d5f8b-a235-4eb7-9dec-de94c6711f82.JPG)
+부하 발생 직 후 pod 생성
+
+![after_siege_pod_hpa](https://user-images.githubusercontent.com/85158266/219268563-5a1f1edd-d6a0-420c-9b20-ccf51ee9cbf4.JPG)
+부하 발생 후 pod 과 hpa 상태
+
+
+# 그외
+## 1. Request / Response
 
 ![image](https://user-images.githubusercontent.com/53729857/205790895-04938551-3ad8-471c-b8c6-676527a106a7.png)
 
@@ -769,7 +800,7 @@ Reqeust / Response : Pay쪽 서버가 정상일 경우만 정상 작동
 Pub / Sub : Store쪽 서버가 올라오지 않을 경우에도 올라온 서버안에서 정상작동
 
 
-## 5. Circuit Breaker
+## 2. Circuit Breaker
 - pay -> Payment.java에 추가
 ```
     @PrePersist
@@ -860,7 +891,7 @@ public class PaymentServiceFallBack implements PaymentService {
 - WAS 로그 - 중간중간 FallBack 로그가 있음
 ![image](https://user-images.githubusercontent.com/53729857/205829830-ea1edeac-a025-41fe-9d50-92d15ed502d7.png)
 
-## 6. Gateway / Ingress
+## 3. Gateway / Ingress
 gateway의 라우터 설정으로 http://a9be8acfa40bf45dd861a2cd4b56fddd-1444298964.ap-northeast-2.elb.amazonaws.com:8080/ 으로 각 서비스로 라우팅 서비스를 제공한다.
 ```
 spring:
@@ -876,7 +907,7 @@ spring:
 ![image](https://user-images.githubusercontent.com/53729857/205836882-b940a8ac-e567-43c0-b569-4b6adc0aa981.png)
 ![image](https://user-images.githubusercontent.com/53729857/205836894-5858d3c0-08d5-4bd7-b8b0-7dba84c23b8a.png)
 
-
+## 6. Gateway / Ingress
 
 # 기타
 ## Before Running Services
