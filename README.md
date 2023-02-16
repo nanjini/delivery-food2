@@ -31,7 +31,7 @@
 
 
 ## Model
-![image](https://user-images.githubusercontent.com/53729857/205811898-fe557cc1-6bc2-4dbf-867c-1734bb86d370.png)
+![이벤트스토밍](https://user-images.githubusercontent.com/85158266/219255569-39247775-00fb-4aaa-9653-57647b0ddfe8.JPG)
 
 
 요구사항을 커버하는지 검증
