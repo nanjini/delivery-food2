@@ -773,15 +773,19 @@ siege pod 내에서 부하를 발생시켜 Autoscale동작을 확인
 siege -c20 -t40S -v http://customer:8080/customer 명령으로 부하를 발생시킨다.
 
 ![before_siege_pod](https://user-images.githubusercontent.com/85158266/219268519-dd52208f-1d08-4b92-a0be-48cdfac77e79.JPG)
+
 부하 발생 전 pod 갯수
 
 ![before_siege_hpa](https://user-images.githubusercontent.com/85158266/219268539-d843fe22-bc39-41e3-b87d-3b48218acdc7.JPG)
+
 부하 발생 전 hpa
 
 ![siege_pod](https://user-images.githubusercontent.com/85158266/219268555-956d5f8b-a235-4eb7-9dec-de94c6711f82.JPG)
+
 부하 발생 직 후 pod 생성
 
 ![after_siege_pod_hpa](https://user-images.githubusercontent.com/85158266/219268563-5a1f1edd-d6a0-420c-9b20-ccf51ee9cbf4.JPG)
+
 부하 발생 후 pod 과 hpa 상태
 
 
